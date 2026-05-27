@@ -230,7 +230,7 @@ export default function SolChadPage() {
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
             <SectionBadge color="#00F5A0">THE PROFESSIONAL EDGE</SectionBadge>
             <h2 id="confluence-heading" style={{ fontFamily: "DM Sans, sans-serif", fontSize: "clamp(1.8rem, 4.5vw, 3.2rem)", fontWeight: 800, color: "#F0F8FF", letterSpacing: "-0.5px", lineHeight: 1.15 }}>
-              Normies are Still Holding onto Hope.{" "}
+              Normies Are Still Holding Onto Hope.{" "}
               <GradientText>Chad Already Left.</GradientText>
             </h2>
             <p style={{ fontSize: "clamp(1rem, 2vw, 1.15rem)", color: "rgba(138,170,187,0.9)", lineHeight: 1.7, maxWidth: 680 }}>
@@ -259,7 +259,7 @@ export default function SolChadPage() {
           <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.7 }} style={{ flex: "1 1 380px", display: "flex", flexDirection: "column", gap: 24 }}>
             <SectionBadge color="#00C9FF">THE INFRASTRUCTURE ADVANTAGE</SectionBadge>
             <h2 id="infra-heading" style={{ fontFamily: "DM Sans, sans-serif", fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", fontWeight: 800, color: "#F0F8FF", letterSpacing: "-0.5px", lineHeight: 1.15 }}>
-              10 bots. 1 shared ground truth.
+              Ten Bots. One Shared Ground Truth.
             </h2>
             <p style={{ fontSize: "clamp(0.95rem, 1.8vw, 1.1rem)", color: "rgba(138,170,187,0.9)", lineHeight: 1.7 }}>
               Every Chad subscriber's 10-bot team draws from the same{" "}
