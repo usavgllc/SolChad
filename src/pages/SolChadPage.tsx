@@ -142,7 +142,7 @@ function BotCard({ bot, index }: { bot: typeof TEN_BOTS[0]; index: number }) {
 
 export default function SolChadPage() {
   const [activeSection, setActiveSection] = useState("");
-  const [billingInterval, setBillingInterval] = useState<"monthly"|"6month"|"annual">("monthly");
+  const [billingInterval, setBillingInterval] = useState<"monthly"|"6month"|"annual">("annual");
 
   const prices: Record<string, { monthly:number; six:number; annual:number }> = {
     basic: { monthly:59,  six:50,  annual:39  },
