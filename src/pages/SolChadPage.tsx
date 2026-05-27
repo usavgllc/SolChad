@@ -113,7 +113,7 @@ function BotCard({ bot, index }: { bot: typeof TEN_BOTS[0]; index: number }) {
       }}
     >
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-        <span style={{ fontFamily: "DM Mono, monospace", fontSize: 32, fontWeight: 900, color: `${bot.color}20`, lineHeight: 1 }}>{bot.num}</span>
+        <span style={{ fontFamily: "DM Mono, monospace", fontSize: 32, fontWeight: 900, color: `${bot.color}55`, lineHeight: 1 }}>{bot.num}</span>
         <span style={{ fontFamily: "DM Mono, monospace", fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: bot.color, background: `${bot.color}12`, border: `1px solid ${bot.color}25`, padding: "3px 8px", borderRadius: 3, whiteSpace: "nowrap" }}>{bot.tag}</span>
       </div>
       <div>
@@ -389,8 +389,9 @@ export default function SolChadPage() {
               Each Chad subscriber gets all 10 bots running in parallel — a dedicated team, not a shared queue.
             </p>
           </motion.div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
-            {TEN_BOTS.map((bot, i) => <BotCard key={bot.num} bot={bot} index={i} />)}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+            {TEN_BOTS.slice(0, 9).map((bot, i) => <BotCard key={bot.num} bot={bot} index={i} />)}
+            <div style={{ gridColumn: "2 / 3" }}><BotCard bot={TEN_BOTS[9]} index={9} /></div>
           </div>
         </div>
       </section>
