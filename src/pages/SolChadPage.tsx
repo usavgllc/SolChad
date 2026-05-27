@@ -140,6 +140,137 @@ function BotCard({ bot, index }: { bot: typeof TEN_BOTS[0]; index: number }) {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
+type SCInterval = "monthly" | "6month" | "annual";
+
+const SC_PRICES: Record<string, { monthly:number; sixTotal:number; sixEquiv:number; annualTotal:number; annualEquiv:number }> = {
+  basic: { monthly:59,  sixTotal:300,  sixEquiv:50,  annualTotal:468,  annualEquiv:39  },
+  pro:   { monthly:159, sixTotal:810,  sixEquiv:135, annualTotal:1428, annualEquiv:119 },
+  chad:  { monthly:349, sixTotal:1770, sixEquiv:295, annualTotal:3348, annualEquiv:279 },
+};
+
+const SC_TIERS = [
+  { key:"free",  badge:"FREE",  price:null,  color:"rgba(138,170,187,0.7)",  highlight:false, desc:"Paper trade with full Chad-grade signals. No credit card required.",
+    features:["Live token scanner","On-chain safety checks","Social data read-only","Paper trading: 10/day, score ≥ 85","Full Chad-grade signals in paper mode","2 SOL persistent paper wallet","Bot live auto-trading locked"] },
+  { key:"basic", badge:"BASIC", price:59,    color:"rgba(138,170,187,0.85)", highlight:false,
+    features:["Everything in Free","Auto-bot enabled","3 max open positions","10 trades per hour","Unlimited paper trades","The Executioner — Confluence Collapse auto-exit (Bot 9)"] },
+  { key:"pro",   badge:"PRO",   price:159,   color:"#FFB800",                highlight:true,
+    features:["Everything in Basic","10 max open positions","30 trades per hour","Dynamic priority fee escalation","RPC redundancy + auto-failover","Helius webhook low-latency execution","Live social intelligence (DEX Scout · X Scout · TG Scout)","Whale copy-trading","SolChad Scanner — score any CA on-demand","ConfluenceRadar signal dashboard"] },
+  { key:"chad",  badge:"CHAD",  price:349,   color:"#00F5A0",                highlight:false,
+    features:["Everything in Pro","Unlimited positions & trades","10-Bot Quantitative Trading Desk","Early Momentum Executor (Bot 10)","Kelly Criterion position sizing","pump.fun graduation sniping (Bot 5)","Insider wallet clustering (Bot 6)","Time-weighted signal scoring (Bot 7)","Developer reputation scoring (Bot 8)","Negative Divergence partial exit","@SolBotChad flywheel bonus weighting"] },
+];
+
+function PricingCards() {
+  const [selectedInterval, setSelectedInterval] = useState<SCInterval>("annual");
+
+  const billingRows: { iv: SCInterval; label: string; badge: string | null; badgeColor: string | null }[] = [
+    { iv:"monthly", label:"Monthly",  badge:null,       badgeColor:null },
+    { iv:"6month",  label:"6 Months", badge:"Save 15%", badgeColor:"#00C9FF" },
+    { iv:"annual",  label:"Annual",   badge:"Save 25%", badgeColor:"#00F5A0" },
+  ];
+
+  function handleSubscribe(tierKey: string) {
+    const params = new URLSearchParams({ tier: tierKey, interval: selectedInterval });
+    window.open(`https://solbot.app/checkout?${params.toString()}`, "_blank");
+  }
+
+  return (
+    <div style={{ width:"100%", maxWidth:1100 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))", gap:20 }}>
+        {SC_TIERS.map((tier, i) => {
+          const isFree = tier.price === null;
+          const p = !isFree ? SC_PRICES[tier.key] : null;
+          const equiv = !p ? null
+            : selectedInterval==="monthly" ? `$${p.monthly}`
+            : selectedInterval==="6month"  ? `$${p.sixEquiv.toFixed(2)}`
+            :                                `$${p.annualEquiv.toFixed(2)}`;
+          const billedNote = !p ? null
+            : selectedInterval==="monthly" ? "billed monthly"
+            : selectedInterval==="6month"  ? `$${p.sixTotal} billed every 6 months`
+            :                                `$${p.annualTotal} billed annually`;
+
+          return (
+            <motion.div key={tier.key} initial={{ opacity:0, y:24 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ duration:0.45, delay:i*0.1 }}
+              style={{ position:"relative", display:"flex", flexDirection:"column", gap:20, padding:24, borderRadius:12,
+                background:tier.highlight?"rgba(255,184,0,0.05)":"rgba(8,22,36,0.8)",
+                border:`1px solid ${tier.highlight?"rgba(255,184,0,0.35)":"rgba(0,245,160,0.12)"}`,
+                boxShadow:tier.highlight?"0 0 40px rgba(255,184,0,0.06)":"none" }}>
+
+              {tier.highlight && <>
+                <div style={{ position:"absolute", top:-1, left:24, right:24, height:1, background:"linear-gradient(90deg,transparent,rgba(255,184,0,0.8),transparent)" }} />
+                <div style={{ position:"absolute", top:-24, left:"50%", transform:"translateX(-50%)", fontFamily:"DM Mono,monospace", fontSize:9, fontWeight:700, letterSpacing:"0.12em", padding:"3px 12px", borderRadius:20, background:"rgba(255,184,0,0.15)", border:"1px solid rgba(255,184,0,0.4)", color:"#FFB800", whiteSpace:"nowrap" }}>MOST POPULAR</div>
+              </>}
+
+              {/* Badge + pricing rows */}
+              <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                <span style={{ fontFamily:"DM Mono,monospace", fontSize:10, fontWeight:700, letterSpacing:"0.12em", color:tier.color, background:`${tier.color}12`, border:`1px solid ${tier.color}30`, padding:"3px 8px", borderRadius:3, alignSelf:"flex-start" }}>{tier.badge}</span>
+
+                {isFree ? (
+                  <>
+                    <span style={{ fontFamily:"DM Mono,monospace", fontSize:28, fontWeight:900, color:tier.color, marginTop:4 }}>Free</span>
+                    <p style={{ fontFamily:"DM Mono,monospace", fontSize:11, color:"rgba(138,170,187,0.7)", lineHeight:1.5 }}>{tier.desc}</p>
+                  </>
+                ) : (
+                  <div style={{ display:"flex", flexDirection:"column", gap:4, marginTop:4 }}>
+                    {billingRows.map(({ iv, label, badge, badgeColor }) => {
+                      const rowP = SC_PRICES[tier.key];
+                      const rowEquiv = iv==="monthly" ? `$${rowP.monthly}` : iv==="6month" ? `$${rowP.sixEquiv.toFixed(2)}` : `$${rowP.annualEquiv.toFixed(2)}`;
+                      const isSelected = selectedInterval === iv;
+                      return (
+                        <button key={iv} onClick={() => setSelectedInterval(iv)}
+                          style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"7px 10px",
+                            border:`1px solid ${isSelected ? `${tier.color}50` : "rgba(138,170,187,0.12)"}`,
+                            background:isSelected ? `${tier.color}08` : "transparent",
+                            borderRadius:6, cursor:"pointer", transition:"all 0.15s" }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                            <span style={{ width:10, height:10, borderRadius:"50%", flexShrink:0, border:`2px solid ${isSelected ? tier.color : "rgba(138,170,187,0.62)"}`, background:isSelected ? tier.color : "transparent", display:"inline-block", transition:"all 0.15s" }} />
+                            <span style={{ fontFamily:"monospace", fontSize:11, fontWeight:isSelected?700:400, color:isSelected?"rgba(240,248,255,0.95)":"rgba(138,170,187,0.9)" }}>{label}</span>
+                          </div>
+                          <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                            {badge && badgeColor && <span style={{ fontFamily:"monospace", fontSize:8, fontWeight:700, padding:"2px 5px", borderRadius:4, color:badgeColor, border:`1px solid ${badgeColor}50`, background:`${badgeColor}18` }}>{badge}</span>}
+                            <span style={{ fontFamily:"monospace", fontSize:12, fontWeight:700, color:isSelected?"rgba(240,248,255,0.95)":"rgba(138,170,187,0.72)" }}>
+                              {rowEquiv}<span style={{ fontSize:9, fontWeight:400, color:"rgba(138,170,187,0.9)" }}>/mo</span>
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                    {billedNote && <p style={{ fontFamily:"monospace", fontSize:9, color:"rgba(138,170,187,0.72)", marginTop:2, paddingLeft:2 }}>{billedNote}</p>}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ height:1, background:`${tier.color}15` }} />
+
+              <ul style={{ display:"flex", flexDirection:"column", gap:10, flex:1 }}>
+                {tier.features.map(f => (
+                  <li key={f} style={{ display:"flex", alignItems:"flex-start", gap:8, fontSize:12, color:"rgba(240,248,255,0.85)" }}>
+                    <span style={{ color:tier.color, fontSize:10, marginTop:2, flexShrink:0, fontWeight:700 }}>✓</span>{f}
+                  </li>
+                ))}
+              </ul>
+
+              {isFree ? (
+                <a href="https://solbot.app/sign-in" style={{ display:"block", textAlign:"center", padding:"12px", borderRadius:8, fontFamily:"DM Mono,monospace", fontSize:12, fontWeight:700, textDecoration:"none", background:"rgba(138,170,187,0.06)", border:"1px solid rgba(138,170,187,0.25)", color:"rgba(138,170,187,0.8)" }}>
+                  Start Free
+                </a>
+              ) : (
+                <button onClick={() => handleSubscribe(tier.key)}
+                  style={{ width:"100%", padding:"12px", borderRadius:8, fontFamily:"DM Mono,monospace", fontSize:12, fontWeight:700, cursor:"pointer", transition:"all 0.15s",
+                    background:tier.highlight?"rgba(255,184,0,0.12)":`${tier.color}10`,
+                    border:`1px solid ${tier.highlight?"rgba(255,184,0,0.5)":`${tier.color}40`}`,
+                    color:tier.color }}>
+                  Subscribe — {equiv}/mo
+                </button>
+              )}
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
 export default function SolChadPage() {
   const [activeSection, setActiveSection] = useState("");
   const [billingInterval, setBillingInterval] = useState<"monthly"|"6month"|"annual">("annual");
@@ -671,57 +802,10 @@ export default function SolChadPage() {
               Pick Your Tier.<br /><GradientText>Start Aping.</GradientText>
             </h2>
             <p style={{ fontFamily:"DM Mono,monospace", fontSize:12, marginTop:12, color:"rgba(138,170,187,0.7)" }}>Monthly billing. Cancel anytime. Direct APK for Android · Desktop web dashboard included.</p>
-
-            {/* Billing toggle */}
-            <div style={{ display:"inline-flex", gap:4, marginTop:20, padding:4, borderRadius:8, background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)" }}>
-              {([["monthly","Monthly",null],["6month","6 Months","Save 15%"],["annual","Annual","Save 25%"]] as [string,string,string|null][]).map(([iv,label,badge]) => (
-                <button key={iv} onClick={() => setBillingInterval(iv as "monthly"|"6month"|"annual")}
-                  style={{ padding:"8px 16px", borderRadius:6, border:"none", cursor:"pointer", fontFamily:"DM Mono,monospace", fontSize:11, fontWeight:billingInterval===iv?700:400, background:billingInterval===iv?"rgba(0,245,160,0.12)":"transparent", color:billingInterval===iv?"#00F5A0":"rgba(138,170,187,0.7)", transition:"all 0.15s", display:"flex", alignItems:"center", gap:6 }}>
-                  {label}
-                  {badge && <span style={{ fontSize:8, fontWeight:700, padding:"2px 5px", borderRadius:3, background:"rgba(0,245,160,0.15)", color:"#00F5A0" }}>{badge}</span>}
-                </button>
-              ))}
-            </div>
           </div>
-
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))", gap:16, width:"100%" }}>
-            {TIERS.map((tier,i) => {
-              const p = tier.price ? prices[tier.key] : null;
-              const displayPrice = !p ? null : billingInterval==="monthly" ? p.monthly : billingInterval==="6month" ? p.six : p.annual;
-              return (
-                <motion.div key={tier.key} initial={{ opacity:0, y:24 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ duration:0.45, delay:i*0.1 }}
-                  style={{ position:"relative", display:"flex", flexDirection:"column", gap:20, padding:24, borderRadius:12, background:tier.highlight?"rgba(255,184,0,0.05)":"rgba(8,22,36,0.8)", border:`1px solid ${tier.highlight?"rgba(255,184,0,0.35)":`${tier.color}20`}`, boxShadow:tier.highlight?"0 0 40px rgba(255,184,0,0.06)":"none" }}>
-                  {tier.highlight && <div style={{ position:"absolute", top:-20, left:"50%", transform:"translateX(-50%)", fontFamily:"DM Mono,monospace", fontSize:9, fontWeight:700, letterSpacing:"0.12em", padding:"3px 12px", borderRadius:20, background:"rgba(255,184,0,0.15)", border:"1px solid rgba(255,184,0,0.4)", color:"#FFB800", whiteSpace:"nowrap" }}>MOST POPULAR</div>}
-                  <div>
-                    <span style={{ fontFamily:"DM Mono,monospace", fontSize:10, fontWeight:700, letterSpacing:"0.12em", color:tier.color, background:`${tier.color}12`, border:`1px solid ${tier.color}30`, padding:"3px 8px", borderRadius:3 }}>{tier.label}</span>
-                    {displayPrice ? (
-                      <div style={{ marginTop:12 }}>
-                        <span style={{ fontFamily:"DM Mono,monospace", fontSize:32, fontWeight:900, color:tier.color }}>${displayPrice}</span>
-                        <span style={{ fontFamily:"DM Mono,monospace", fontSize:11, color:"rgba(138,170,187,0.6)" }}>/mo</span>
-                      </div>
-                    ) : (
-                      <div style={{ fontFamily:"DM Mono,monospace", fontSize:32, fontWeight:900, color:tier.color, marginTop:12 }}>Free</div>
-                    )}
-                  </div>
-                  <div style={{ height:1, background:`${tier.color}15` }} />
-                  <ul style={{ display:"flex", flexDirection:"column", gap:8, flex:1 }}>
-                    {tier.features.map(f => (
-                      <li key={f} style={{ display:"flex", alignItems:"flex-start", gap:8, fontSize:12, color:"rgba(240,248,255,0.85)" }}>
-                        <span style={{ color:tier.color, fontSize:10, marginTop:2, flexShrink:0, fontWeight:700 }}>✓</span>{f}
-                      </li>
-                    ))}
-                  </ul>
-                  <a href={tier.price?"https://solbot.app/#pricing":"https://solbot.app/sign-in"}
-                    style={{ display:"block", textAlign:"center", padding:"12px", borderRadius:8, fontFamily:"DM Mono,monospace", fontSize:12, fontWeight:700, textDecoration:"none", background:tier.highlight?`rgba(255,184,0,0.12)`:`${tier.color}10`, border:`1px solid ${tier.highlight?"rgba(255,184,0,0.5)":`${tier.color}40`}`, color:tier.color, transition:"all 0.15s" }}>
-                    {tier.price ? `Subscribe — $${displayPrice}/mo` : "Start Free"}
-                  </a>
-                </motion.div>
-              );
-            })}
-          </div>
+          <PricingCards />
         </div>
       </section>
-
       {/* ── Footer ── */}
       <footer style={{ padding:"40px 24px", borderTop:"1px solid rgba(0,245,160,0.08)", background:"rgba(1,6,14,0.98)" }}>
         <div style={{ maxWidth:1200, margin:"0 auto", display:"flex", flexWrap:"wrap", alignItems:"center", justifyContent:"space-between", gap:16 }}>
