@@ -161,6 +161,7 @@ const SC_TIERS = [
 
 function PricingCards() {
   const [selectedInterval, setSelectedInterval] = useState<SCInterval>("annual");
+  const [selectedTier, setSelectedTier] = useState<string>("pro");
 
   const billingRows: { iv: SCInterval; label: string; badge: string | null; badgeColor: string | null }[] = [
     { iv:"monthly", label:"Monthly",  badge:null,       badgeColor:null },
@@ -168,7 +169,8 @@ function PricingCards() {
     { iv:"annual",  label:"Annual",   badge:"Save 25%", badgeColor:"#00F5A0" },
   ];
 
-  function handleSubscribe(tierKey: string) {
+  function handleSubscribe(e: React.MouseEvent, tierKey: string) {
+    e.stopPropagation();
     const params = new URLSearchParams({ tier: tierKey, interval: selectedInterval });
     window.open(`https://solbot.app/checkout?${params.toString()}`, "_blank");
   }
@@ -177,6 +179,7 @@ function PricingCards() {
     <div style={{ width:"100%", maxWidth:1100 }}>
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))", gap:20 }}>
         {SC_TIERS.map((tier, i) => {
+          const isSelected = selectedTier === tier.key;
           const isFree = tier.price === null;
           const p = !isFree ? SC_PRICES[tier.key] : null;
           const equiv = !p ? null
@@ -188,25 +191,42 @@ function PricingCards() {
             : selectedInterval==="6month"  ? `$${p.sixTotal} billed every 6 months`
             :                                `$${p.annualTotal} billed annually`;
 
+          // Blue when selected, green otherwise
+          const accentColor = isSelected ? "#00C9FF" : "#00F5A0";
+
           return (
-            <motion.div key={tier.key} initial={{ opacity:0, y:24 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ duration:0.45, delay:i*0.1 }}
-              style={{ position:"relative", display:"flex", flexDirection:"column", gap:20, padding:24, borderRadius:12,
-                background:tier.highlight?"rgba(255,184,0,0.05)":"rgba(8,22,36,0.8)",
-                border:`1px solid ${tier.highlight?"rgba(255,184,0,0.35)":"rgba(0,245,160,0.12)"}`,
-                boxShadow:tier.highlight?"0 0 40px rgba(255,184,0,0.06)":"none" }}>
+            <motion.div
+              key={tier.key}
+              initial={{ opacity:0, y:24 }}
+              whileInView={{ opacity:1, y:0 }}
+              viewport={{ once:true }}
+              transition={{ duration:0.45, delay:i*0.1 }}
+              onClick={() => setSelectedTier(tier.key)}
+              style={{
+                position:"relative", display:"flex", flexDirection:"column", gap:20, padding:24, borderRadius:12,
+                background: isSelected ? "rgba(0,201,255,0.06)" : "rgba(8,22,36,0.8)",
+                border: `1px solid ${isSelected ? "rgba(0,201,255,0.5)" : "rgba(0,245,160,0.18)"}`,
+                boxShadow: isSelected ? "0 0 32px rgba(0,201,255,0.08)" : "none",
+                cursor:"pointer", transition:"all 0.2s",
+              }}
+            >
+              {/* Selected glow top line */}
+              {isSelected && (
+                <div style={{ position:"absolute", top:-1, left:24, right:24, height:1, background:"linear-gradient(90deg,transparent,rgba(0,201,255,0.8),transparent)" }} />
+              )}
 
-              {tier.highlight && <>
-                <div style={{ position:"absolute", top:-1, left:24, right:24, height:1, background:"linear-gradient(90deg,transparent,rgba(255,184,0,0.8),transparent)" }} />
-                <div style={{ position:"absolute", top:-24, left:"50%", transform:"translateX(-50%)", fontFamily:"DM Mono,monospace", fontSize:9, fontWeight:700, letterSpacing:"0.12em", padding:"3px 12px", borderRadius:20, background:"rgba(255,184,0,0.15)", border:"1px solid rgba(255,184,0,0.4)", color:"#FFB800", whiteSpace:"nowrap" }}>MOST POPULAR</div>
-              </>}
+              {/* MOST POPULAR badge — only on pro */}
+              {tier.key === "pro" && (
+                <div style={{ position:"absolute", top:-24, left:"50%", transform:"translateX(-50%)", fontFamily:"DM Mono,monospace", fontSize:9, fontWeight:700, letterSpacing:"0.12em", padding:"3px 12px", borderRadius:20, background: isSelected ? "rgba(0,201,255,0.15)" : "rgba(0,201,255,0.1)", border:`1px solid ${isSelected ? "rgba(0,201,255,0.5)" : "rgba(0,201,255,0.3)"}`, color:"#00C9FF", whiteSpace:"nowrap" }}>MOST POPULAR</div>
+              )}
 
-              {/* Badge + pricing rows */}
+              {/* Tier label badge */}
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-                <span style={{ fontFamily:"DM Mono,monospace", fontSize:10, fontWeight:700, letterSpacing:"0.12em", color:tier.color, background:`${tier.color}12`, border:`1px solid ${tier.color}30`, padding:"3px 8px", borderRadius:3, alignSelf:"flex-start" }}>{tier.badge}</span>
+                <span style={{ fontFamily:"DM Mono,monospace", fontSize:10, fontWeight:700, letterSpacing:"0.12em", color:accentColor, background:`${accentColor}12`, border:`1px solid ${accentColor}30`, padding:"3px 8px", borderRadius:3, alignSelf:"flex-start" }}>{tier.badge}</span>
 
                 {isFree ? (
                   <>
-                    <span style={{ fontFamily:"DM Mono,monospace", fontSize:28, fontWeight:900, color:tier.color, marginTop:4 }}>Free</span>
+                    <span style={{ fontFamily:"DM Mono,monospace", fontSize:28, fontWeight:900, color:accentColor, marginTop:4 }}>Free</span>
                     <p style={{ fontFamily:"DM Mono,monospace", fontSize:11, color:"rgba(138,170,187,0.7)", lineHeight:1.5 }}>{tier.desc}</p>
                   </>
                 ) : (
@@ -214,20 +234,24 @@ function PricingCards() {
                     {billingRows.map(({ iv, label, badge, badgeColor }) => {
                       const rowP = SC_PRICES[tier.key];
                       const rowEquiv = iv==="monthly" ? `$${rowP.monthly}` : iv==="6month" ? `$${rowP.sixEquiv.toFixed(2)}` : `$${rowP.annualEquiv.toFixed(2)}`;
-                      const isSelected = selectedInterval === iv;
+                      const isRowSelected = selectedInterval === iv;
                       return (
-                        <button key={iv} onClick={() => setSelectedInterval(iv)}
+                        <button key={iv}
+                          onClick={e => { e.stopPropagation(); setSelectedInterval(iv); }}
                           style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"7px 10px",
-                            border:`1px solid ${isSelected ? `${tier.color}50` : "rgba(138,170,187,0.12)"}`,
-                            background:isSelected ? `${tier.color}08` : "transparent",
+                            border:`1px solid ${isRowSelected ? `${accentColor}50` : "rgba(138,170,187,0.12)"}`,
+                            background:isRowSelected ? `${accentColor}08` : "transparent",
                             borderRadius:6, cursor:"pointer", transition:"all 0.15s" }}>
                           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                            <span style={{ width:10, height:10, borderRadius:"50%", flexShrink:0, border:`2px solid ${isSelected ? tier.color : "rgba(138,170,187,0.62)"}`, background:isSelected ? tier.color : "transparent", display:"inline-block", transition:"all 0.15s" }} />
-                            <span style={{ fontFamily:"monospace", fontSize:11, fontWeight:isSelected?700:400, color:isSelected?"rgba(240,248,255,0.95)":"rgba(138,170,187,0.9)" }}>{label}</span>
+                            <span style={{ width:10, height:10, borderRadius:"50%", flexShrink:0,
+                              border:`2px solid ${isRowSelected ? accentColor : "rgba(138,170,187,0.62)"}`,
+                              background:isRowSelected ? accentColor : "transparent",
+                              display:"inline-block", transition:"all 0.15s" }} />
+                            <span style={{ fontFamily:"monospace", fontSize:11, fontWeight:isRowSelected?700:400, color:isRowSelected?"rgba(240,248,255,0.95)":"rgba(138,170,187,0.9)" }}>{label}</span>
                           </div>
                           <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                             {badge && badgeColor && <span style={{ fontFamily:"monospace", fontSize:8, fontWeight:700, padding:"2px 5px", borderRadius:4, color:badgeColor, border:`1px solid ${badgeColor}50`, background:`${badgeColor}18` }}>{badge}</span>}
-                            <span style={{ fontFamily:"monospace", fontSize:12, fontWeight:700, color:isSelected?"rgba(240,248,255,0.95)":"rgba(138,170,187,0.72)" }}>
+                            <span style={{ fontFamily:"monospace", fontSize:12, fontWeight:700, color:isRowSelected?"rgba(240,248,255,0.95)":"rgba(138,170,187,0.72)" }}>
                               {rowEquiv}<span style={{ fontSize:9, fontWeight:400, color:"rgba(138,170,187,0.9)" }}>/mo</span>
                             </span>
                           </div>
@@ -239,26 +263,29 @@ function PricingCards() {
                 )}
               </div>
 
-              <div style={{ height:1, background:`${tier.color}15` }} />
+              <div style={{ height:1, background:`${accentColor}15` }} />
 
               <ul style={{ display:"flex", flexDirection:"column", gap:10, flex:1 }}>
                 {tier.features.map(f => (
                   <li key={f} style={{ display:"flex", alignItems:"flex-start", gap:8, fontSize:12, color:"rgba(240,248,255,0.85)" }}>
-                    <span style={{ color:tier.color, fontSize:10, marginTop:2, flexShrink:0, fontWeight:700 }}>✓</span>{f}
+                    <span style={{ color:accentColor, fontSize:10, marginTop:2, flexShrink:0, fontWeight:700 }}>✓</span>{f}
                   </li>
                 ))}
               </ul>
 
               {isFree ? (
-                <a href="https://solbot.app/sign-in" style={{ display:"block", textAlign:"center", padding:"12px", borderRadius:8, fontFamily:"DM Mono,monospace", fontSize:12, fontWeight:700, textDecoration:"none", background:"rgba(138,170,187,0.06)", border:"1px solid rgba(138,170,187,0.25)", color:"rgba(138,170,187,0.8)" }}>
+                <a href="https://solbot.app/sign-in"
+                  onClick={e => e.stopPropagation()}
+                  style={{ display:"block", textAlign:"center", padding:"12px", borderRadius:8, fontFamily:"DM Mono,monospace", fontSize:12, fontWeight:700, textDecoration:"none", background:`${accentColor}10`, border:`1px solid ${accentColor}40`, color:accentColor, transition:"all 0.15s" }}>
                   Start Free
                 </a>
               ) : (
-                <button onClick={() => handleSubscribe(tier.key)}
+                <button
+                  onClick={e => handleSubscribe(e, tier.key)}
                   style={{ width:"100%", padding:"12px", borderRadius:8, fontFamily:"DM Mono,monospace", fontSize:12, fontWeight:700, cursor:"pointer", transition:"all 0.15s",
-                    background:tier.highlight?"rgba(255,184,0,0.12)":`${tier.color}10`,
-                    border:`1px solid ${tier.highlight?"rgba(255,184,0,0.5)":`${tier.color}40`}`,
-                    color:tier.color }}>
+                    background: isSelected ? `rgba(0,201,255,0.15)` : `${accentColor}10`,
+                    border:`1px solid ${isSelected ? "rgba(0,201,255,0.5)" : `${accentColor}40`}`,
+                    color:accentColor }}>
                   Subscribe — {equiv}/mo
                 </button>
               )}
