@@ -424,7 +424,10 @@ export default function SolChadPage() {
             <p style={{ fontFamily:"DM Sans,sans-serif", fontWeight:700, fontSize:"1.1rem", color:"#F0F8FF", marginTop:6, lineHeight:1.4 }}>Ready to deploy your 10-bot trading team?</p>
           </div>
           <a href="https://solbot.app/#pricing" style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"12px 24px", borderRadius:10, background:"linear-gradient(90deg,#00F5A0,#00C9FF)", color:"#020B14", fontSize:14, fontWeight:800, textDecoration:"none", whiteSpace:"nowrap" }}>
-            Upgrade to Chad — $349/mo →
+            <span style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+                  <span>Upgrade to Chad — $279/mo →</span>
+                  <span style={{ fontSize:10, fontWeight:500, opacity:0.7 }}>(Billed Annually)</span>
+                </span>
           </a>
         </div>
       </motion.section>
