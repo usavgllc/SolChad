@@ -361,9 +361,14 @@ export default function SolChadPage() {
               <span style={{ fontFamily:"DM Mono,monospace", fontSize:11, color:"#00F5A0", letterSpacing:"3px", fontWeight:700 }}>SOLCHAD EDGE</span>
               <span style={{ width:4, height:4, borderRadius:"50%", background:"#00F5A0", display:"inline-block" }} />
             </div>
-            <h1 style={{ fontFamily:"DM Sans,sans-serif", fontSize:"clamp(1.9rem,5vw,3.4rem)", fontWeight:800, color:"#F0F8FF", letterSpacing:"-1px", lineHeight:1.12, textAlign:"center" }}>
-              The Others Exit on Price.{" "}<GradientText>Chad Exits on Signal Deterioration.</GradientText>
+            {/* Visually hidden H1 for SEO — primary keyword target */}
+            <h1 style={{ position:"absolute", width:1, height:1, padding:0, margin:-1, overflow:"hidden", clip:"rect(0,0,0,0)", whiteSpace:"nowrap", border:0 }}>
+              SolChad — Automated Solana Meme Coin Trading Bot | 10-Bot Quantitative System for pump.fun
             </h1>
+            {/* Visual headline — brand tone */}
+            <p role="heading" aria-level={2} style={{ fontFamily:"DM Sans,sans-serif", fontSize:"clamp(1.9rem,5vw,3.4rem)", fontWeight:800, color:"#F0F8FF", letterSpacing:"-1px", lineHeight:1.12, textAlign:"center" }}>
+              The Others Exit on Price.{" "}<GradientText>Chad Exits on Signal Deterioration.</GradientText>
+            </p>
             <p style={{ fontSize:"clamp(1rem,2vw,1.15rem)", color:"rgba(138,170,187,0.9)", lineHeight:1.7, maxWidth:580, textAlign:"center" }}>
               Before the chart moves. Before the panic. A <strong style={{ color:"#F0F8FF" }}>10-bot quantitative trading desk</strong> runs 24/7 for each Chad subscriber — with a dedicated position manager that exits on Confluence Collapse, not on loss, and an Early Momentum executor that fires in milliseconds on new launches.
             </p>

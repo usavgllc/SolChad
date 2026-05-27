@@ -12,4 +12,8 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
   },
+  ssr: {
+    // Externalize node_modules for SSR build — speeds up build and avoids CJS/ESM issues
+    noExternal: ["framer-motion"],
+  },
 });

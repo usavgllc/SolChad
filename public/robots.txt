@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /dist/server/
 
 Sitemap: https://solchad.com/sitemap.xml
