@@ -182,7 +182,7 @@ export default function SolChadPage() {
             <a href="https://solbot.app" style={{ fontFamily:"DM Mono,monospace", fontSize:12, color:"rgba(138,170,187,0.7)", textDecoration:"none" }}>SolBot.app</a>
           </nav>
           <a href="https://solbot.app/#pricing" style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"8px 18px", borderRadius:8, background:"rgba(0,245,160,0.1)", border:"1px solid rgba(0,245,160,0.3)", textDecoration:"none", fontFamily:"DM Mono,monospace", fontSize:12, fontWeight:700, color:"#00F5A0", transition:"all 0.15s" }}>
-            Start for $59/mo →
+            Start for $39/mo →
           </a>
         </div>
       </header>
@@ -211,7 +211,10 @@ export default function SolChadPage() {
             </p>
             <div style={{ display:"flex", flexWrap:"wrap", gap:12, justifyContent:"center" }}>
               <a href="https://solbot.app/#pricing" style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"12px 28px", borderRadius:10, background:"linear-gradient(90deg,#00F5A0,#00C9FF)", color:"#020B14", fontSize:14, fontWeight:800, textDecoration:"none" }}>
-                Start for $59/mo →
+                <span style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+                  <span>Start for $39/mo →</span>
+                  <span style={{ fontSize:10, fontWeight:500, opacity:0.7 }}>(Billed Annually)</span>
+                </span>
               </a>
               <a href="https://solbot.app" style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"12px 24px", borderRadius:10, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.12)", color:"rgba(255,255,255,0.75)", fontSize:14, fontWeight:600, textDecoration:"none" }}>
                 Already on Chad? Open the app →
